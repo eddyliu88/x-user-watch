@@ -10,6 +10,7 @@ if [[ ! -f "$CONFIG_PATH" ]]; then
   cp "${ROOT_DIR}/config.example.json" "$CONFIG_PATH"
   echo "Created config.json from config.example.json"
 fi
+mkdir -p "$(dirname "$STATE_PATH")"
 [[ -f "$STATE_PATH" ]] || echo '{}' > "$STATE_PATH"
 command -v jq >/dev/null || { echo "jq is required" >&2; exit 1; }
 command -v curl >/dev/null || { echo "curl is required" >&2; exit 1; }
@@ -23,10 +24,21 @@ ensure_channels_exist() {
   fi
 }
 
+build_feed_url() {
+  local handle="$1"
+  local template="$2"
+  if [[ "$template" == *"{handle}"* ]]; then
+    echo "${template//\{handle\}/$handle}"
+  else
+    echo "${template%/}/${handle}/rss"
+  fi
+}
+
 fetch_latest_item() {
   local handle="$1"
-  local rss_base="$2"
-  local feed_url="${rss_base%/}/${handle}/rss"
+  local source_template="$2"
+  local feed_url
+  feed_url="$(build_feed_url "$handle" "$source_template")"
 
   local feed item
   if ! feed="$(curl -fsSL "$feed_url")"; then
@@ -44,7 +56,6 @@ fetch_latest_item() {
     return 1
   fi
 
-  # Pull first <item> block only
   item="$(awk 'BEGIN{RS="</item>"}/<item>/{print; exit}' <<<"$feed")"
   if [[ -z "$item" ]]; then
     echo "WARN: RSS has no <item> for @$handle from $feed_url" >&2
@@ -67,8 +78,13 @@ check_once() {
   local handles_json
   handles_json="$(jq -c '.handles' "$CONFIG_PATH")"
 
-  local rss_bases_json
-  rss_bases_json="$(jq -c 'if (.rss_bases // null) != null then .rss_bases else [(.rss_base // "https://nitter.net")] end' "$CONFIG_PATH")"
+  local feed_sources_json
+  feed_sources_json="$(jq -c '
+    if (.rss_templates // null) != null then .rss_templates
+    elif (.rss_bases // null) != null then .rss_bases
+    else [(.rss_base // "https://nitter.net")]
+    end
+  ' "$CONFIG_PATH")"
 
   local tmp_state
   tmp_state="$(mktemp)"
@@ -79,12 +95,12 @@ check_once() {
     [[ -n "$handle" ]] || continue
 
     result=""
-    while IFS= read -r rss_base; do
-      [[ -n "$rss_base" ]] || continue
-      if result="$(fetch_latest_item "$handle" "$rss_base")"; then
+    while IFS= read -r src; do
+      [[ -n "$src" ]] || continue
+      if result="$(fetch_latest_item "$handle" "$src")"; then
         break
       fi
-    done < <(jq -r '.[]' <<<"$rss_bases_json")
+    done < <(jq -r '.[]' <<<"$feed_sources_json")
 
     if [[ -n "$result" ]]; then
       guid="${result%%$'\t'*}"
@@ -110,7 +126,7 @@ check_once() {
 }
 
 mode="${1:---once}"
-poll_seconds="$(jq -r '.poll_seconds // 60' "$CONFIG_PATH")"
+poll_seconds="$(jq -r '.poll_seconds // 180' "$CONFIG_PATH")"
 
 case "$mode" in
   --once)

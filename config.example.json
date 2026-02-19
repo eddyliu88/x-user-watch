@@ -1,6 +1,9 @@
 {
-  "poll_seconds": 60,
-  "rss_base": "https://nitter.net",
+  "poll_seconds": 180,
+  "rss_templates": [
+    "https://rsshub.app/twitter/user/{handle}",
+    "https://nitter.net/{handle}/rss"
+  ],
   "handles": [],
   "channels": [
     {

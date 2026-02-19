@@ -31,25 +31,37 @@ else
   echo "[ OK ] channels configured"
 fi
 
-rss_bases_json="$(jq -c 'if (.rss_bases // null) != null then .rss_bases else [(.rss_base // "https://nitter.net")] end' "$CONFIG_PATH")"
+feed_sources_json="$(jq -c '
+  if (.rss_templates // null) != null then .rss_templates
+  elif (.rss_bases // null) != null then .rss_bases
+  else [(.rss_base // "https://nitter.net")]
+  end
+' "$CONFIG_PATH")"
 
-echo "\n-- feed source checks --"
-while IFS= read -r base; do
-  [[ -n "$base" ]] || continue
+echo
+ echo "-- feed source checks --"
+while IFS= read -r src; do
+  [[ -n "$src" ]] || continue
   first_handle="$(jq -r '.handles[0] // "elonmusk"' "$CONFIG_PATH")"
-  url="${base%/}/${first_handle}/rss"
+  if [[ "$src" == *"{handle}"* ]]; then
+    url="${src//\{handle\}/$first_handle}"
+  else
+    url="${src%/}/${first_handle}/rss"
+  fi
+
   : >/tmp/x-user-watch-doctor.tmp
-  code="$(curl -sS -o /tmp/x-user-watch-doctor.tmp -w '%{http_code}' "$url" || true)"
+  code="$(curl -sSL -o /tmp/x-user-watch-doctor.tmp -w '%{http_code}' "$url" || true)"
   size="$(wc -c </tmp/x-user-watch-doctor.tmp 2>/dev/null || echo 0)"
   if grep -qiE '<rss|<feed' /tmp/x-user-watch-doctor.tmp 2>/dev/null; then
-    echo "[ OK ] $base (http=$code, bytes=$size, rss=yes)"
+    echo "[ OK ] $url (http=$code, bytes=$size, rss=yes)"
   else
-    echo "[WARN] $base (http=$code, bytes=$size, rss=no)"
+    echo "[WARN] $url (http=$code, bytes=$size, rss=no)"
   fi
-done < <(jq -r '.[]' <<<"$rss_bases_json")
+done < <(jq -r '.[]' <<<"$feed_sources_json")
 
-echo "\n-- notifier dry run --"
-if /root/.openclaw/workspace/x-user-watch/scripts/notify.sh "x-user-watch doctor" "delivery check" "https://example.com"; then
+echo
+ echo "-- notifier dry run --"
+if "${ROOT_DIR}/scripts/notify.sh" "x-user-watch doctor" "delivery check" "https://example.com"; then
   echo "[ OK ] notify.sh executed"
 else
   echo "[FAIL] notify.sh failed"
