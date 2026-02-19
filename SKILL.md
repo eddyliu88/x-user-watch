@@ -15,27 +15,29 @@ It does three things:
 ## Run
 
 ```bash
-bash scripts/watch.sh --once
-bash scripts/watch.sh --daemon
+./x-user-watch watch --once
+./x-user-watch watch --daemon
 ```
 
 ## Manage handles
 
 ```bash
-bash scripts/handles.sh list
-bash scripts/handles.sh add realdonaldtrump
-bash scripts/handles.sh remove realdonaldtrump
+./x-user-watch handles list
+./x-user-watch handles add realdonaldtrump
+./x-user-watch handles remove realdonaldtrump
 ```
 
 ## Manage delivery channels
 
 ```bash
-bash scripts/channels.sh list
-bash scripts/channels.sh add telegram 1250920101 default
-bash scripts/channels.sh remove 0
+./x-user-watch channels list
+./x-user-watch channels add telegram 1250920101 default
+./x-user-watch channels remove 0
 ```
 
 If no delivery channels exist, watcher exits and does not keep polling.
+
+Legacy script entrypoints remain available under `scripts/`.
 
 ## Storage
 

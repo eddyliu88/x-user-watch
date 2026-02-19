@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+  cat <<'EOF'
+x-user-watch launcher
+
+Usage:
+  ./x-user-watch watch --once|--daemon
+  ./x-user-watch handles list|add <handle>|remove <handle>
+  ./x-user-watch channels list|add <channel> <target> [account_id]|remove <index>
+
+Notes:
+  - Legacy scripts still work directly under scripts/.
+EOF
+}
+
+cmd="${1:-}"
+shift || true
+
+case "$cmd" in
+  watch)
+    exec bash "$ROOT_DIR/scripts/watch.sh" "$@"
+    ;;
+  handles)
+    exec bash "$ROOT_DIR/scripts/handles.sh" "$@"
+    ;;
+  channels)
+    exec bash "$ROOT_DIR/scripts/channels.sh" "$@"
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    echo "Unknown command: $cmd" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

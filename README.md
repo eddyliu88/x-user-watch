@@ -41,15 +41,16 @@ sudo apt update && sudo apt install -y curl jq
 
 ```bash
 cp config.example.json config.json
-bash scripts/handles.sh add realdonaldtrump
-bash scripts/channels.sh add telegram 1250920101 default
-bash scripts/watch.sh --once
+chmod +x ./x-user-watch
+./x-user-watch handles add realdonaldtrump
+./x-user-watch channels add telegram 1250920101 default
+./x-user-watch watch --once
 ```
 
 Then run continuously:
 
 ```bash
-bash scripts/watch.sh --daemon
+./x-user-watch watch --daemon
 ```
 
 ## Config
@@ -123,20 +124,24 @@ Use the same channel names supported by your OpenClaw setup, including:
 ## Manage handles
 
 ```bash
-bash scripts/handles.sh list
-bash scripts/handles.sh add realdonaldtrump
-bash scripts/handles.sh remove realdonaldtrump
+./x-user-watch handles list
+./x-user-watch handles add realdonaldtrump
+./x-user-watch handles remove realdonaldtrump
 ```
+
+Legacy method (still supported): `bash scripts/handles.sh ...`
 
 ## Manage delivery channels
 
 ```bash
-bash scripts/channels.sh list
-bash scripts/channels.sh add telegram 1250920101 default
-bash scripts/channels.sh remove 0
+./x-user-watch channels list
+./x-user-watch channels add telegram 1250920101 default
+./x-user-watch channels remove 0
 ```
 
 `remove` uses zero-based index from `list` output.
+
+Legacy method (still supported): `bash scripts/channels.sh ...`
 
 ## Config examples
 
