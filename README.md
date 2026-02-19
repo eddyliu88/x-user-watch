@@ -51,17 +51,34 @@ sudo apt update && sudo apt install -y curl jq
 - `poll_seconds`: check interval
 - `rss_base`: RSS mirror base (default `https://nitter.net`)
 - `handles`: accounts to watch (without `@`)
-- `notifier.type`: `telegram|slack|ntfy|gotify|webhook`
+- `notifiers`: list of channels to send to (one or many)
 
-Set one notifier block based on `notifier.type`:
+Each notifier item must have `type` and matching settings:
 
-- `telegram`: `notifier.telegram.bot_token`, `notifier.telegram.chat_id`
-- `slack`: `notifier.slack.webhook_url`
-- `ntfy`: `notifier.ntfy.url` (+ optional token)
-- `gotify`: `notifier.gotify.url`, `notifier.gotify.token`
-- `webhook`: `notifier.webhook.url` (+ optional bearer token)
+- `telegram`: `telegram.bot_token`, `telegram.chat_id`
+- `slack`: `slack.webhook_url`
+- `ntfy`: `ntfy.url` (+ optional token)
+- `gotify`: `gotify.url`, `gotify.token`
+- `webhook`: `webhook.url` (+ optional bearer token)
 
-If notifier type is missing or invalid, the script exits with a clear error message.
+If `notifiers` is missing/empty or any notifier item is invalid, the script exits with a clear error message.
+
+### Multiple channels example
+
+```json
+{
+  "notifiers": [
+    {
+      "type": "telegram",
+      "telegram": { "bot_token": "<token>", "chat_id": "<chat_id>" }
+    },
+    {
+      "type": "slack",
+      "slack": { "webhook_url": "https://hooks.slack.com/services/..." }
+    }
+  ]
+}
+```
 
 ## Suggested run modes
 
