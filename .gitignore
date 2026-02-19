@@ -1,2 +1,5 @@
 config.json
 data/state.json
+data/*.lock
+logs/
+*.tmp

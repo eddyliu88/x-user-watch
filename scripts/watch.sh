@@ -11,6 +11,15 @@ NOTIFY_SCRIPT="${ROOT_DIR}/scripts/notify.sh"
 command -v jq >/dev/null || { echo "jq is required" >&2; exit 1; }
 command -v curl >/dev/null || { echo "curl is required" >&2; exit 1; }
 
+ensure_channels_exist() {
+  local count
+  count="$(jq -r '(.notifiers // []) | length' "$CONFIG_PATH")"
+  if [[ "$count" -le 0 ]]; then
+    echo "No notifier channels configured (notifiers is empty). Stopping watcher." >&2
+    return 1
+  fi
+}
+
 fetch_latest_item() {
   local handle="$1"
   local rss_base="$2"
@@ -69,10 +78,12 @@ poll_seconds="$(jq -r '.poll_seconds // 60' "$CONFIG_PATH")"
 
 case "$mode" in
   --once)
+    ensure_channels_exist || exit 1
     check_once
     ;;
   --daemon)
     while true; do
+      ensure_channels_exist || exit 1
       check_once || true
       sleep "$poll_seconds"
     done

@@ -1,44 +1,47 @@
 ---
 name: x-user-watch
-description: Watch one or more X/Twitter accounts and send notifications when they post. Use for low-cost feed monitoring with no LLM calls. Supports Telegram, ntfy, Gotify, and generic webhooks.
+description: Monitor one or more public X/Twitter handles via RSS and send new-post alerts to one or more channels (Telegram, Slack webhook, ntfy, Gotify, or generic webhook) without using LLM calls. Use when users want low-cost feed watching, multi-channel notifications, and simple shell-based automation.
 ---
 
 # x-user-watch
 
-This skill is a lightweight watcher.
+`x-user-watch` is a shell skill for public X feeds.
 
-- No agent loop
-- No model calls
-- Just polling + notify
+It does three things:
+1. Read handles from `config.json`
+2. Check latest RSS item per handle
+3. Notify configured channels when there is a new item
 
-## What it does
-
-1. Read `config.json`
-2. Pull each handle's RSS feed
-3. Compare latest item with local state
-4. Send notification if there's a new post
-5. Save new state
-
-## Setup
-
-1. Copy `config.example.json` to `config.json`
-2. Fill in your handles and notifier settings (or use `scripts/handles.sh`)
-3. Run once:
+## Run
 
 ```bash
 bash scripts/watch.sh --once
-```
-
-4. Run continuously:
-
-```bash
 bash scripts/watch.sh --daemon
 ```
 
-Or use cron/systemd and call `--once`.
+## Manage handles
 
-## Notes
+```bash
+bash scripts/handles.sh list
+bash scripts/handles.sh add realdonaldtrump
+bash scripts/handles.sh remove realdonaldtrump
+```
 
-- Uses RSS source (`nitter.net` by default)
-- If one RSS mirror is blocked in your region, swap `rss_base` in config
-- State is stored in `data/state.json`
+## Manage notifier channels
+
+```bash
+bash scripts/notifiers.sh list
+bash scripts/notifiers.sh remove 0
+```
+
+If no notifier channels exist, watcher exits and does not keep polling.
+
+## Storage
+
+- Runtime config: `config.json`
+- Last-seen IDs: `data/state.json`
+
+## Limits
+
+- Public accounts only
+- Depends on RSS mirror availability

@@ -1,0 +1,14 @@
+{
+  "poll_seconds": 60,
+  "rss_base": "https://nitter.net",
+  "handles": ["realdonaldtrump"],
+  "notifiers": [
+    {
+      "type": "telegram",
+      "telegram": {
+        "bot_token": "<telegram-bot-token>",
+        "chat_id": "<telegram-chat-id>"
+      }
+    }
+  ]
+}
