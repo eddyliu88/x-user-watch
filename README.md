@@ -26,6 +26,14 @@ bash scripts/watch.sh --once
 bash scripts/watch.sh --daemon
 ```
 
+Handle management helper:
+
+```bash
+bash scripts/handles.sh list
+bash scripts/handles.sh add realdonaldtrump
+bash scripts/handles.sh remove realdonaldtrump
+```
+
 ## Dependencies
 
 - `bash`

@@ -22,7 +22,7 @@ This skill is a lightweight watcher.
 ## Setup
 
 1. Copy `config.example.json` to `config.json`
-2. Fill in your handles and notifier settings
+2. Fill in your handles and notifier settings (or use `scripts/handles.sh`)
 3. Run once:
 
 ```bash
