@@ -1,7 +1,7 @@
 {
   "poll_seconds": 60,
   "rss_base": "https://nitter.net",
-  "handles": ["realdonaldtrump"],
+  "handles": ["elonmusk"],
   "channels": [
     {
       "channel": "telegram",
