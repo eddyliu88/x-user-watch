@@ -40,7 +40,6 @@ sudo apt update && sudo apt install -y curl jq
 ## Quick start (minimum working example)
 
 ```bash
-cp config.example.json config.json
 chmod +x ./x-user-watch
 ./x-user-watch handles add realdonaldtrump
 ./x-user-watch channels add telegram 1250920101 default
@@ -163,11 +162,8 @@ Run `watch.sh --once` every minute.
 
 ### `config.json not found`
 
-Create it first:
-
-```bash
-cp config.example.json config.json
-```
+Scripts auto-create it from `config.example.json` when needed.
+If auto-create fails, check file permissions in the skill folder.
 
 ### `channels is missing or empty in config.json`
 

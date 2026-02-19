@@ -6,7 +6,10 @@ CONFIG_PATH="${ROOT_DIR}/config.json"
 STATE_PATH="${ROOT_DIR}/data/state.json"
 NOTIFY_SCRIPT="${ROOT_DIR}/scripts/notify.sh"
 
-[[ -f "$CONFIG_PATH" ]] || { echo "config.json not found. Copy config.example.json first." >&2; exit 1; }
+if [[ ! -f "$CONFIG_PATH" ]]; then
+  cp "${ROOT_DIR}/config.example.json" "$CONFIG_PATH"
+  echo "Created config.json from config.example.json"
+fi
 [[ -f "$STATE_PATH" ]] || echo '{}' > "$STATE_PATH"
 command -v jq >/dev/null || { echo "jq is required" >&2; exit 1; }
 command -v curl >/dev/null || { echo "curl is required" >&2; exit 1; }

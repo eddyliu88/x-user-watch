@@ -5,8 +5,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG_PATH="${ROOT_DIR}/config.json"
 
 if [[ ! -f "$CONFIG_PATH" ]]; then
-  echo "config.json not found. Copy config.example.json first." >&2
-  exit 1
+  cp "${ROOT_DIR}/config.example.json" "$CONFIG_PATH"
+  echo "Created config.json from config.example.json"
 fi
 
 command -v jq >/dev/null || { echo "jq is required" >&2; exit 1; }
