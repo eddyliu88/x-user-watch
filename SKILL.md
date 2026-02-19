@@ -30,9 +30,9 @@ bash scripts/handles.sh remove realdonaldtrump
 ## Manage delivery channels
 
 ```bash
-bash scripts/notifiers.sh list
-bash scripts/notifiers.sh add telegram 1250920101 default
-bash scripts/notifiers.sh remove 0
+bash scripts/channels.sh list
+bash scripts/channels.sh add telegram 1250920101 default
+bash scripts/channels.sh remove 0
 ```
 
 If no delivery channels exist, watcher exits and does not keep polling.

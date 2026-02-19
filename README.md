@@ -37,12 +37,18 @@ Ubuntu/Debian:
 sudo apt update && sudo apt install -y curl jq
 ```
 
-## Quick start
+## Quick start (minimum working example)
 
 ```bash
 cp config.example.json config.json
-# edit config.json
+bash scripts/handles.sh add realdonaldtrump
+bash scripts/channels.sh add telegram 1250920101 default
 bash scripts/watch.sh --once
+```
+
+Then run continuously:
+
+```bash
 bash scripts/watch.sh --daemon
 ```
 
@@ -60,6 +66,13 @@ Each `channels[]` item:
 - `channel`: OpenClaw channel slug
 - `target`: destination identifier for that channel
 - `account_id` (optional): OpenClaw account id (default account used if omitted)
+
+Common `target` formats:
+
+- Telegram DM: numeric chat id (example: `1250920101`)
+- WhatsApp: E.164 number (example: `+6281234567890`)
+- Slack: channel/user target supported by OpenClaw CLI (example: `channel:C0123456789`)
+- Discord: channel target (example: `channel:123456789012345678`)
 
 If `channels` is empty, the watcher exits immediately (no polling).
 
@@ -118,9 +131,9 @@ bash scripts/handles.sh remove realdonaldtrump
 ## Manage delivery channels
 
 ```bash
-bash scripts/notifiers.sh list
-bash scripts/notifiers.sh add telegram 1250920101 default
-bash scripts/notifiers.sh remove 0
+bash scripts/channels.sh list
+bash scripts/channels.sh add telegram 1250920101 default
+bash scripts/channels.sh remove 0
 ```
 
 `remove` uses zero-based index from `list` output.
