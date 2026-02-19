@@ -13,9 +13,9 @@ command -v curl >/dev/null || { echo "curl is required" >&2; exit 1; }
 
 ensure_channels_exist() {
   local count
-  count="$(jq -r '(.notifiers // []) | length' "$CONFIG_PATH")"
+  count="$(jq -r '(.channels // []) | length' "$CONFIG_PATH")"
   if [[ "$count" -le 0 ]]; then
-    echo "No notifier channels configured (notifiers is empty). Stopping watcher." >&2
+    echo "No delivery channels configured (channels is empty). Stopping watcher." >&2
     return 1
   fi
 }

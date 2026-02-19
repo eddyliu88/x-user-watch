@@ -2,19 +2,16 @@
   "poll_seconds": 60,
   "rss_base": "https://nitter.net",
   "handles": ["openai", "sama"],
-  "notifiers": [
+  "channels": [
     {
-      "type": "telegram",
-      "telegram": {
-        "bot_token": "<telegram-bot-token>",
-        "chat_id": "<telegram-chat-id>"
-      }
+      "channel": "telegram",
+      "target": "<chat_id>",
+      "account_id": "default"
     },
     {
-      "type": "slack",
-      "slack": {
-        "webhook_url": "https://hooks.slack.com/services/..."
-      }
+      "channel": "slack",
+      "target": "channel:C0123456789",
+      "account_id": "default"
     }
   ]
 }

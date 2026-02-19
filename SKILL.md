@@ -1,6 +1,6 @@
 ---
 name: x-user-watch
-description: Monitor one or more public X/Twitter handles via RSS and send new-post alerts to one or more channels (Telegram, Slack webhook, ntfy, Gotify, or generic webhook) without using LLM calls. Use when users want low-cost feed watching, multi-channel notifications, and simple shell-based automation.
+description: Monitor one or more public X/Twitter handles via RSS and send new-post alerts through OpenClaw chat channels using openclaw message send (telegram, whatsapp, discord, slack, signal, etc.) without LLM calls.
 ---
 
 # x-user-watch
@@ -10,7 +10,7 @@ description: Monitor one or more public X/Twitter handles via RSS and send new-p
 It does three things:
 1. Read handles from `config.json`
 2. Check latest RSS item per handle
-3. Notify configured channels when there is a new item
+3. Send alerts through configured OpenClaw channels
 
 ## Run
 
@@ -27,14 +27,15 @@ bash scripts/handles.sh add realdonaldtrump
 bash scripts/handles.sh remove realdonaldtrump
 ```
 
-## Manage notifier channels
+## Manage delivery channels
 
 ```bash
 bash scripts/notifiers.sh list
+bash scripts/notifiers.sh add telegram 1250920101 default
 bash scripts/notifiers.sh remove 0
 ```
 
-If no notifier channels exist, watcher exits and does not keep polling.
+If no delivery channels exist, watcher exits and does not keep polling.
 
 ## Storage
 

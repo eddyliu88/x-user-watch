@@ -7,7 +7,7 @@ No LLM loop. This is plain shell polling + notifications.
 ## What this is good for
 
 - Track multiple handles
-- Send alerts to one or more channels
+- Send alerts to one or more OpenClaw chat channels
 - Keep cost near zero (no model calls)
 
 ## What this is not
@@ -19,9 +19,9 @@ No LLM loop. This is plain shell polling + notifications.
 
 - Multi-handle watchlist
 - Deduped alerts using latest item GUID per handle
-- Multi-channel notifications (`notifiers[]`)
+- Multi-channel delivery via `openclaw message send`
 - Handle management helper
-- Notifier management helper
+- Channel route management helper
 - Clear config errors
 
 ## Dependencies
@@ -29,6 +29,7 @@ No LLM loop. This is plain shell polling + notifications.
 - `bash`
 - `curl`
 - `jq`
+- `openclaw` CLI
 
 Ubuntu/Debian:
 
@@ -52,17 +53,59 @@ Main fields:
 - `poll_seconds`: check interval (default 60)
 - `rss_base`: RSS mirror base (`https://nitter.net` by default)
 - `handles`: list of accounts without `@`
-- `notifiers`: list of delivery channels (one or many)
+- `channels`: list of OpenClaw delivery routes (one or many)
 
-Notifier types:
+Each `channels[]` item:
 
-- `telegram`: `telegram.bot_token`, `telegram.chat_id`
-- `slack`: `slack.webhook_url`
-- `ntfy`: `ntfy.url` (+ optional `ntfy.token`)
-- `gotify`: `gotify.url`, `gotify.token`
-- `webhook`: `webhook.url` (+ optional `webhook.bearer_token`)
+- `channel`: OpenClaw channel slug
+- `target`: destination identifier for that channel
+- `account_id` (optional): OpenClaw account id (default account used if omitted)
 
-If `notifiers` is empty, the watcher exits immediately (no polling).
+If `channels` is empty, the watcher exits immediately (no polling).
+
+### Channel example
+
+```json
+{
+  "channels": [
+    {
+      "channel": "telegram",
+      "target": "1250920101",
+      "account_id": "default"
+    },
+    {
+      "channel": "slack",
+      "target": "channel:C0123456789"
+    }
+  ]
+}
+```
+
+## Supported OpenClaw channels
+
+Use the same channel names supported by your OpenClaw setup, including:
+
+- telegram
+- whatsapp
+- discord
+- irc
+- googlechat
+- slack
+- signal
+- imessage
+- feishu
+- nostr
+- msteams
+- mattermost
+- nextcloud-talk
+- matrix
+- bluebubbles
+- line
+- zalo
+- zalouser
+- tlon
+
+(Availability depends on what the user configured/enabled in OpenClaw.)
 
 ## Manage handles
 
@@ -72,10 +115,11 @@ bash scripts/handles.sh add realdonaldtrump
 bash scripts/handles.sh remove realdonaldtrump
 ```
 
-## Manage notifier channels
+## Manage delivery channels
 
 ```bash
 bash scripts/notifiers.sh list
+bash scripts/notifiers.sh add telegram 1250920101 default
 bash scripts/notifiers.sh remove 0
 ```
 
@@ -107,37 +151,21 @@ Create it first:
 cp config.example.json config.json
 ```
 
-### `notifiers is missing or empty in config.json`
+### `channels is missing or empty in config.json`
 
-Add at least one notifier in `notifiers[]`.
-
-### `... unsupported type ...`
-
-Allowed values: `telegram|slack|ntfy|gotify|webhook`.
+Add at least one channel route in `channels[]`.
 
 ### No alerts even though watcher runs
 
 - Check `handles` is not empty
-- Check notifier credentials/webhook are valid
+- Check channel route target/account is valid in OpenClaw
 - Test RSS URL manually: `curl "https://nitter.net/<handle>/rss"`
 
 ### RSS mirror unstable/blocked
 
 Change `rss_base` to another mirror you trust.
 
-## Migration note (old config)
+## Migration note
 
-Old format used a single `notifier` object.
-Current format uses `notifiers` array.
-
-Before:
-
-```json
-{ "notifier": { "type": "telegram", "telegram": {"bot_token":"...","chat_id":"..."} } }
-```
-
-After:
-
-```json
-{ "notifiers": [ { "type": "telegram", "telegram": {"bot_token":"...","chat_id":"..."} } ] }
-```
+Old versions used `notifier` or `notifiers` blocks.
+Current version uses `channels` to route through OpenClaw-native messaging.

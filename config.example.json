@@ -2,13 +2,11 @@
   "poll_seconds": 60,
   "rss_base": "https://nitter.net",
   "handles": [],
-  "notifiers": [
+  "channels": [
     {
-      "type": "telegram",
-      "telegram": {
-        "bot_token": "",
-        "chat_id": ""
-      }
+      "channel": "telegram",
+      "target": "<chat_id>",
+      "account_id": "default"
     }
   ]
 }
