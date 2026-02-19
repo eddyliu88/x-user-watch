@@ -67,7 +67,7 @@ check_once() {
         changed=1
       fi
     fi
-  done < <(jq -r '.handles[]' <<<"$handles_json")
+  done < <(jq -r '.[]' <<<"$handles_json")
 
   if [[ "$changed" -eq 1 ]]; then
     mv "$tmp_state" "$STATE_PATH"
