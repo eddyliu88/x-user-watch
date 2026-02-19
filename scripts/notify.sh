@@ -19,6 +19,11 @@ BODY="${2:-}"
 URL="${3:-}"
 MESSAGE="$TITLE\n$BODY\n$URL"
 
+[[ -n "$TYPE" ]] || {
+  echo "notifier.type is missing in config.json (set: telegram|slack|ntfy|gotify|webhook)" >&2
+  exit 1
+}
+
 case "$TYPE" in
   telegram)
     BOT_TOKEN="$(jq -r '.notifier.telegram.bot_token // ""' "$CONFIG_PATH")"
@@ -27,6 +32,14 @@ case "$TYPE" in
     curl -fsS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
       -d "chat_id=${CHAT_ID}" \
       --data-urlencode "text=${MESSAGE}" >/dev/null
+    ;;
+
+  slack)
+    SLACK_WEBHOOK="$(jq -r '.notifier.slack.webhook_url // ""' "$CONFIG_PATH")"
+    [[ -n "$SLACK_WEBHOOK" ]] || { echo "Slack selected but notifier.slack.webhook_url is missing" >&2; exit 1; }
+    curl -fsS -X POST "$SLACK_WEBHOOK" \
+      -H 'Content-Type: application/json' \
+      -d "{\"text\":\"$(printf '%s' "$MESSAGE" | json_escape)\"}" >/dev/null
     ;;
 
   ntfy)
@@ -62,7 +75,7 @@ case "$TYPE" in
     ;;
 
   *)
-    echo "Unsupported notifier type: $TYPE" >&2
+    echo "Unsupported notifier type: $TYPE (supported: telegram|slack|ntfy|gotify|webhook)" >&2
     exit 1
     ;;
 esac

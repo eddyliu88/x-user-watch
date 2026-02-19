@@ -19,6 +19,9 @@
     "webhook": {
       "url": "https://example.com/webhook",
       "bearer_token": ""
+    },
+    "slack": {
+      "webhook_url": ""
     }
   }
 }

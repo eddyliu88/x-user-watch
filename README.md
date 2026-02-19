@@ -12,6 +12,7 @@ No LLM calls. No token burn.
 - Low resource usage
 - Notification targets:
   - Telegram
+  - Slack webhook
   - ntfy
   - Gotify
   - generic webhook
@@ -42,7 +43,7 @@ sudo apt update && sudo apt install -y curl jq
 - `poll_seconds`: check interval
 - `rss_base`: RSS mirror base (default `https://nitter.net`)
 - `handles`: accounts to watch (without `@`)
-- `notifier.type`: `telegram|ntfy|gotify|webhook`
+- `notifier.type`: `telegram|slack|ntfy|gotify|webhook`
 
 ## Suggested run modes
 
