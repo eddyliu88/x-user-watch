@@ -11,6 +11,7 @@ Usage:
   ./x-user-watch watch --once|--daemon
   ./x-user-watch handles list|add <handle>|remove <handle>
   ./x-user-watch channels list|add <channel> <target> [account_id]|remove <index>
+  ./x-user-watch doctor
 
 Notes:
   - Legacy scripts still work directly under scripts/.
@@ -29,6 +30,9 @@ case "$cmd" in
     ;;
   channels)
     exec bash "$ROOT_DIR/scripts/channels.sh" "$@"
+    ;;
+  doctor)
+    exec bash "$ROOT_DIR/scripts/doctor.sh" "$@"
     ;;
   ""|-h|--help|help)
     usage

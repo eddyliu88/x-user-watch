@@ -160,6 +160,14 @@ Run `watch.sh --once` every minute.
 
 ## Troubleshooting
 
+Run built-in diagnostics:
+
+```bash
+./x-user-watch doctor
+```
+
+It checks handles/channels config, tests feed sources, and performs a notifier send test.
+
 ### `config.json not found`
 
 Scripts auto-create it from `config.example.json` when needed.
