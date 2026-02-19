@@ -28,23 +28,47 @@ fetch_latest_item() {
   local rss_base="$2"
   local feed_url="${rss_base%/}/${handle}/rss"
 
+  local feed item
+  if ! feed="$(curl -fsSL "$feed_url")"; then
+    echo "WARN: failed to fetch RSS for @$handle from $feed_url" >&2
+    return 1
+  fi
+
+  if [[ -z "$feed" ]]; then
+    echo "WARN: empty RSS response for @$handle from $feed_url" >&2
+    return 1
+  fi
+
+  if ! grep -qiE '<rss|<feed' <<<"$feed"; then
+    echo "WARN: non-RSS response for @$handle from $feed_url (likely anti-bot/challenge page)" >&2
+    return 1
+  fi
+
   # Pull first <item> block only
-  local item
-  item="$(curl -fsSL "$feed_url" | awk 'BEGIN{RS="</item>"}/<item>/{print; exit}')" || return 1
+  item="$(awk 'BEGIN{RS="</item>"}/<item>/{print; exit}' <<<"$feed")"
+  if [[ -z "$item" ]]; then
+    echo "WARN: RSS has no <item> for @$handle from $feed_url" >&2
+    return 1
+  fi
 
   local guid title link
   guid="$(printf '%s' "$item" | sed -n 's:.*<guid[^>]*>\(.*\)</guid>.*:\1:p' | head -n1)"
   title="$(printf '%s' "$item" | sed -n 's:.*<title>\(.*\)</title>.*:\1:p' | head -n1 | sed 's/&quot;/"/g; s/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g')"
   link="$(printf '%s' "$item" | sed -n 's:.*<link>\(.*\)</link>.*:\1:p' | head -n1)"
 
-  [[ -n "$guid" ]] || return 1
+  [[ -n "$guid" ]] || {
+    echo "WARN: could not parse GUID for @$handle from $feed_url" >&2
+    return 1
+  }
   printf '%s\t%s\t%s\n' "$guid" "$title" "$link"
 }
 
 check_once() {
-  local rss_base handles_json
-  rss_base="$(jq -r '.rss_base' "$CONFIG_PATH")"
+  local handles_json
   handles_json="$(jq -c '.handles' "$CONFIG_PATH")"
+
+  local rss_bases_json
+  rss_bases_json="$(jq -c 'if (.rss_bases // null) != null then .rss_bases else [(.rss_base // "https://nitter.net")] end' "$CONFIG_PATH")"
 
   local tmp_state
   tmp_state="$(mktemp)"
@@ -53,7 +77,16 @@ check_once() {
   local changed=0
   while IFS= read -r handle; do
     [[ -n "$handle" ]] || continue
-    if result="$(fetch_latest_item "$handle" "$rss_base" 2>/dev/null)"; then
+
+    result=""
+    while IFS= read -r rss_base; do
+      [[ -n "$rss_base" ]] || continue
+      if result="$(fetch_latest_item "$handle" "$rss_base")"; then
+        break
+      fi
+    done < <(jq -r '.[]' <<<"$rss_bases_json")
+
+    if [[ -n "$result" ]]; then
       guid="${result%%$'\t'*}"
       rest="${result#*$'\t'}"
       title="${rest%%$'\t'*}"
