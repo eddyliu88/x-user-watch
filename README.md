@@ -41,7 +41,7 @@ sudo apt update && sudo apt install -y curl jq
 
 ```bash
 chmod +x ./x-user-watch
-./x-user-watch handles add realdonaldtrump
+./x-user-watch handles add elonmusk
 ./x-user-watch channels add telegram 1250920101 default
 ./x-user-watch watch --once
 ```
